@@ -1,21 +1,22 @@
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === 'send-selector') {
-    // Forward the message to the frontend application
-    window.postMessage(
-      { action: 'send-selector', selector: request.selector },
-      '*'
-    )
+// Listen for messages from the content script and forward the message to the frontend application or stop tracking based on its action property
+chrome.runtime.onMessage.addListener(
+  ({ action, userActions, trackedIndex }, sender, sendResponse) => {
+    if (action === 'send-action') {
+      window.postMessage({ action, userActions }, '*')
+    } else if (action === 'stop-tracking') {
+      window.postMessage({ action, trackedIndex }, '*')
+    }
   }
-})
+)
 
-window.addEventListener('message', event => {
-  if (event.source !== window) return
+// Listen for messages from the frontend application and forward them to the background script
+window.addEventListener('message', ({ source, data }) => {
+  if (source !== window) return
 
-  if (event.data.action === 'start-tracking') {
-    // Forward the message to the background script
+  if (data.action === 'start-tracking') {
     chrome.runtime.sendMessage({
       action: 'start-tracking',
-      trackingId: event.data.trackingId
+      trackingId: data.trackingId
     })
   }
 })

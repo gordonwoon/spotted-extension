@@ -2,15 +2,28 @@
 <html>
   <head>
     <style>
-      /* Add your custom styles here */
+      body {
+        font-family: Arial, sans-serif;
+        width: 300px;
+      }
+
+      .selector-item {
+        display: flex;
+        align-items: center;
+      }
+
+      label {
+        margin-left: 8px;
+      }
     </style>
   </head>
   <body>
     <h1>Spotted Extension</h1>
 
-    <button id="startCapture">Start Capture</button>
-    <button id="stopCapture">Stop Capture</button>
-    <ul id="clickSelectors"></ul>
+    <button id="stop-capture">Stop Capture</button>
+    <form id="selector-form"></form>
+    <button id="track-selector">Track Selector</button>
+    <p>Tracked Selector Content: <span id="tracked-selector"></span></p>
     <script src="popup.js"></script>
   </body>
 </html>

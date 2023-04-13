@@ -10,8 +10,12 @@ function setRequestTabId(tabId) {
   capturing = true
 }
 
-// Array to store click selectors
-const clickSelectors = []
+// Array to store user actions
+const userActions = []
+
+const getText = element => {
+  return element && element.textContent ? element.textContent.trim() : ''
+}
 
 // Handler function for click events
 function handleClick(event) {
@@ -22,28 +26,44 @@ function handleClick(event) {
   // event.stopPropagation()
 
   const selector = getCssPath(event.target)
+  const textContent = getText(document.querySelector(selector))
 
-  // Send a message to the browser extension with the clicked element's selector
-  console.log('Sending selector:', selector, requestTabId)
-
-  chrome.runtime.sendMessage({
-    action: 'send-selector',
-    selector: selector
-  })
+  console.log('clicked:', selector)
 
   // Add the selector to the array of click selectors
-  clickSelectors.push(selector)
+  userActions.push({ selector, textContent })
+
+  // Send a message to the browser extension with the clicked element's selector
+  chrome.runtime.sendMessage({
+    action: 'send-action',
+    userActions
+  })
+}
+
+function handleRoute(data) {
+  // Store route change information
+  const route = data.newUrl
+  console.log('route changed:', route)
+
+  const lastAction = userActions[userActions.length - 1]
+
+  userActions[userActions.length - 1] = { ...lastAction, route }
+
+  chrome.runtime.sendMessage({
+    action: 'send-action',
+    userActions
+  })
 }
 
 // Function to stop capturing
 function stopCapture() {
   capturing = false
   console.log('Capture stopped')
-  console.log('Click selectors:', clickSelectors)
+  console.log('User Actions:', userActions)
 
   chrome.runtime.sendMessage({
     action: 'stop-tracking',
-    selector: clickSelectors
+    userActions
   })
 }
 
@@ -75,5 +95,47 @@ function getCssPath(el) {
   return path.join(' > ')
 }
 
-// Add click event listener to the entire document's body
-document.body.addEventListener('click', handleClick)
+// // Add route changes event listener
+// const wrapHistoryMethod = methodName => {
+//   const originalMethod = history[methodName]
+
+//   history[methodName] = function (state, title, url) {
+//     const result = originalMethod.apply(this, arguments)
+
+//     const event = new CustomEvent('urlchange', {
+//       detail: { state, title, url, method: methodName }
+//     })
+
+//     window.dispatchEvent(event)
+
+//     return result
+//   }
+// }
+
+// wrapHistoryMethod('pushState')
+// wrapHistoryMethod('replaceState')
+
+// window.addEventListener('urlchange', handleRoute)
+
+// Monitor URL changes
+let lastUrl = window.location.href
+
+const checkUrlChange = () => {
+  if (lastUrl !== window.location.href) {
+    lastUrl = window.location.href
+    console.log('URL changed:', lastUrl)
+    handleRoute({ lastUrl, newUrl: window.location.href })
+    // Store route change information
+  }
+  setTimeout(checkUrlChange, 500) // Check every 500 ms
+}
+
+checkUrlChange()
+
+// Observe DOM changes and reattach the click event listener
+const observer = new MutationObserver(mutations => {
+  document.body.removeEventListener('click', handleClick)
+  document.body.addEventListener('click', handleClick)
+})
+
+observer.observe(document, { childList: true, subtree: true })

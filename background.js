@@ -7,21 +7,22 @@ let popupId = null
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   switch (request.action) {
     // Send response with required data
-    case 'send-selector':
-      console.log('received selector', request.selector)
+    case 'send-action':
+      console.log('sending userActions', request.userActions, requestTabId)
       chrome.tabs.sendMessage(requestTabId, {
-        action: 'send-selector',
-        selector: request.selector
+        action: 'send-action',
+        userActions: request.userActions
       })
 
-      chrome.runtime.sendMessage(popupId, { selector: request.selector })
+      chrome.runtime.sendMessage(popupId, { userActions: request.userActions })
       break
 
     // Send response with required data
     case 'stop-tracking':
+      console.log('sending trackedIndex', request.trackedIndex, requestTabId)
       chrome.tabs.sendMessage(requestTabId, {
         action: 'stop-tracking',
-        selector: request.selector
+        trackedIndex: request.trackedIndex
       })
       break
 
