@@ -4,12 +4,15 @@ let trackedIndex = 0
 
 // When the stop-capture button is clicked, send a message with an action of 'stop-tracking' along with the current tracked index to the runtime object
 stopCaptureButton.addEventListener('click', () => {
-  chrome.runtime.sendMessage({
-    action: 'stop-tracking',
-    trackedIndex
-  })
-
-  window.close()
+  chrome.runtime.sendMessage(
+    {
+      action: 'stop-tracking',
+      trackedIndex
+    },
+    () => {
+      window.close()
+    }
+  )
 })
 
 // Listen for clicks on the track-selector button and update the trackedIndex variable and displayed text accordingly
@@ -33,6 +36,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   // Create and append radio input fields for each user action with corresponding labels
   userActions.forEach((action, index) => {
+    if (action.type === 'scroll') return
+
     const input = document.createElement('input')
     input.setAttribute('type', 'radio')
     input.setAttribute('name', 'selector')

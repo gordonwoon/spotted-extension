@@ -30,7 +30,7 @@ function handleClick(event) {
   console.log('clicked:', selector)
 
   // Add the selector to the array of click selectors
-  userActions.push({ selector, textContent })
+  userActions.push({ type: 'click', selector, textContent })
 
   // Send a message to the browser extension with the clicked element's selector
   chrome.runtime.sendMessage({
@@ -44,9 +44,14 @@ function handleRoute(data) {
   const route = data.newUrl
   console.log('route changed:', route)
 
-  const lastAction = userActions[userActions.length - 1]
+  const lastClickActionIndex = userActions.findLastIndex(
+    action => action.type === 'click'
+  )
 
-  userActions[userActions.length - 1] = { ...lastAction, route }
+  userActions[lastClickActionIndex] = {
+    ...userActions[lastClickActionIndex],
+    route
+  }
 
   chrome.runtime.sendMessage({
     action: 'send-action',
@@ -116,3 +121,20 @@ const observer = new MutationObserver(mutations => {
 })
 
 observer.observe(document, { childList: true, subtree: true })
+
+let lastScrollY = 0
+window.addEventListener('scroll', event => {
+  const scrollY = window.scrollY
+
+  if (Math.abs(scrollY - lastScrollY) > 100) {
+    const action = {
+      type: 'scroll',
+      scrollY: scrollY
+    }
+
+    // Store the scroll action
+    userActions.push(action)
+    console.log('Scroll action:', action)
+    lastScrollY = scrollY
+  }
+})
