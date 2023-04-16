@@ -8,6 +8,8 @@ stopCaptureButton.addEventListener('click', () => {
     action: 'stop-tracking',
     trackedIndex
   })
+
+  window.close()
 })
 
 // Listen for clicks on the track-selector button and update the trackedIndex variable and displayed text accordingly

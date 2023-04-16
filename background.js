@@ -24,13 +24,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         action: 'stop-tracking',
         trackedIndex: request.trackedIndex
       })
+
+      // Close the tab
+      chrome.tabs.remove(targetTabId)
       break
 
     // Create a new tab and execute a script in it
     case 'start-tracking':
       console.log('Create tab message received')
 
-      chrome.tabs.create({ url: request.trackingId }, newTab => {
+      chrome.tabs.create({ url: request.url }, newTab => {
         console.log(
           `New tab created with id ${newTab.id} at index ${newTab.index}, with URL ${newTab.url}`
         )

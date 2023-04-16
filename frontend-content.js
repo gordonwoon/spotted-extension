@@ -16,7 +16,7 @@ window.addEventListener('message', ({ source, data }) => {
   if (data.action === 'start-tracking') {
     chrome.runtime.sendMessage({
       action: 'start-tracking',
-      trackingId: data.trackingId
+      url: data.url
     })
   }
 })

@@ -1,5 +1,4 @@
 // Declare variables for tracking ID, request tab ID and capturing state
-let trackingId = null
 let requestTabId = null
 let capturing = false
 
@@ -56,16 +55,16 @@ function handleRoute(data) {
 }
 
 // Function to stop capturing
-function stopCapture() {
-  capturing = false
-  console.log('Capture stopped')
-  console.log('User Actions:', userActions)
+// function stopCapture() {
+//   capturing = false
+//   console.log('Capture stopped')
+//   console.log('User Actions:', userActions)
 
-  chrome.runtime.sendMessage({
-    action: 'stop-tracking',
-    userActions
-  })
-}
+//   chrome.runtime.sendMessage({
+//     action: 'stop-tracking',
+//     userActions
+//   })
+// }
 
 // Function to generate CSS path for an element
 function getCssPath(el) {
@@ -94,28 +93,6 @@ function getCssPath(el) {
   }
   return path.join(' > ')
 }
-
-// // Add route changes event listener
-// const wrapHistoryMethod = methodName => {
-//   const originalMethod = history[methodName]
-
-//   history[methodName] = function (state, title, url) {
-//     const result = originalMethod.apply(this, arguments)
-
-//     const event = new CustomEvent('urlchange', {
-//       detail: { state, title, url, method: methodName }
-//     })
-
-//     window.dispatchEvent(event)
-
-//     return result
-//   }
-// }
-
-// wrapHistoryMethod('pushState')
-// wrapHistoryMethod('replaceState')
-
-// window.addEventListener('urlchange', handleRoute)
 
 // Monitor URL changes
 let lastUrl = window.location.href
